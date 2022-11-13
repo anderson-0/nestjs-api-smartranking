@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Post, Query } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
@@ -15,10 +15,16 @@ export class PlayersController {
 
   @Get()
   async find(@Query('email') email: string): Promise<IPlayer[]> {
+    let players: IPlayer[] = []
     if (email) {
-      return this.playersService.findByEmail(email);
+      players = await this.playersService.findByEmail(email);
     }
-    return this.playersService.find();
+    players = await this.playersService.find();
+
+    if (players.length === 0) {
+      throw new HttpException('No players found', 404);
+    }
+    return players
   }
 
   @Delete()
