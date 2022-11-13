@@ -4,6 +4,7 @@ import { IPlayer } from './interfaces/player.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UpdatePlayerDto } from './dtos/update-player.dto';
 
 @Injectable()
 export class PlayersService {
@@ -20,11 +21,10 @@ export class PlayersService {
     return player;
   }
 
-  async update(_id: string, createPlayerDto: CreatePlayerDto): Promise<void> {
-    const { email } = createPlayerDto;
+  async update(_id: string, updatePlayerDto: UpdatePlayerDto): Promise<void> {
     await this.playerModel.findOneAndUpdate(
       { _id },
-      { $set: createPlayerDto },).exec();
+      { $set: updatePlayerDto },).exec();
   }
 
   async find(): Promise<IPlayer[]> {
