@@ -46,14 +46,12 @@ export class PlayersController {
 
   @Get()
   async find(): Promise<IPlayer[]> {
-    const players: IPlayer[] = await this.playersService.find();
-    return players
+    return this.playersService.find();
   }
 
   @Get()
   async findByEmail(@Query('email') email: string): Promise<IPlayer> {
     const player: IPlayer = await this.playersService.findByEmail(email);
-   
     if (!player) {
       throw new HttpException('Player not found', HttpStatus.NOT_FOUND);
     }
@@ -62,8 +60,7 @@ export class PlayersController {
 
   @Get('/:_id')
   async findById(@Param('_id') id: string): Promise<IPlayer> {
-    const player: IPlayer = await this.playersService.findById(id);
-    return player
+    return this.playersService.findById(id);
   }
 
   @Delete(`/:_id`)
