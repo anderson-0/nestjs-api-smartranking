@@ -1,4 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+  Query,
+  Param,
+  Body,
+  Get,
+  Post,
+  Put,
+  Delete,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
@@ -12,6 +27,11 @@ export class PlayersController {
   @Post()
   @UsePipes(ValidationPipe)
   async create(@Body() criarJogadorDto: CreatePlayerDto): Promise<IPlayer> {
+    const { email } = criarJogadorDto;
+    const player: IPlayer = await this.playersService.findByEmail(email);
+    if (player) {
+      throw new BadRequestException('Player already exists');
+    }
     return this.playersService.create(criarJogadorDto);
   }
 
