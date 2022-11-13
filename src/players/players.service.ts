@@ -25,15 +25,15 @@ export class PlayersService {
   }
 
   async find(): Promise<IPlayer[]> {
-    return await this.playerModel.find().exec();
+    return this.playerModel.find().exec();
   }
 
   async findByEmail(email: string): Promise<IPlayer[]> {
-    return this.players.filter((player) => player.email === email);
+    return this.playerModel.find({ email }).exec()
   }
 
   async delete(email: string): Promise<void> {
-    this.players = this.players.filter((player) => player.email !== email);
+    await this.playerModel.findOneAndDelete({ email }).exec();
   }
 
   private async update(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
