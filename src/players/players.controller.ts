@@ -38,7 +38,7 @@ export class PlayersController {
 
   @Put('/:_id')
   @HttpCode(204)
-  @UsePipes(new ValidationPipe({ whitelist: true })) //removes unnecessary fields from the request body
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) //removes unnecessary fields from the request body
   async update(
     @Body() updatePlayerDto: UpdatePlayerDto,
     @Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
