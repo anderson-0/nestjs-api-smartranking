@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Post, Query } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
@@ -22,7 +22,7 @@ export class PlayersController {
     players = await this.playersService.find();
 
     if (players.length === 0) {
-      throw new HttpException('No players found', 404);
+      throw new HttpException('No players found', HttpStatus.NOT_FOUND);
     }
     return players
   }
