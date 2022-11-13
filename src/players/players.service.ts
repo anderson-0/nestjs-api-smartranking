@@ -2,25 +2,30 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { v4 as uuidv4 } from 'uuid';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
   private players: IPlayer[] = [];
 
-  async upsert(createPlayerDto: CreatePlayerDto): Promise<void> {
-    const { name } = createPlayerDto;
+  constructor(@InjectModel('Player') private readonly playerModel: Model<IPlayer>) {}
 
-    const playerFound = this.players.find((player) => player.name === name);
+  async upsert(createPlayerDto: CreatePlayerDto): Promise<void> {
+    const { email } = createPlayerDto;
+
+    const playerFound = await this.playerModel.findOne({ email }).exec();
+    
     if (playerFound) {
-      this.update(playerFound, createPlayerDto);
+      this.update(createPlayerDto);
     } else {
       this.create(createPlayerDto);
     }
   }
 
   async find(): Promise<IPlayer[]> {
-    return this.players;
+    return await this.playerModel.find().exec();
   }
 
   async findByEmail(email: string): Promise<IPlayer[]> {
@@ -31,24 +36,18 @@ export class PlayersService {
     this.players = this.players.filter((player) => player.email !== email);
   }
 
-  private update(player: IPlayer, createPlayerDto: CreatePlayerDto): void {
-    const { name } = createPlayerDto;
-    player.name = name;
-    this.players = [...this.players.filter((player) => player.name !== name), player];
+  private async update(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    const { email } = createPlayerDto;
+    return this.playerModel.findOneAndUpdate(
+      { email },
+      { $set: createPlayerDto },).exec();
   }
 
-  private create(createPlayerDto: CreatePlayerDto): void {
-    const { name, email, phoneNumber } = createPlayerDto;
-    const player: IPlayer = {
-      _id: uuidv4(),
-      name,
-      email,
-      phoneNumber,
-      ranking: 'A',
-      rankingPosition: 1,
-      urlPhoto: 'http://google.com',
-    };
-    this.logger.log(`createPlayerDto: ${JSON.stringify(createPlayerDto)}`);
-    this.players.push(player);
+  private async create(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    const playerModel = new this.playerModel(createPlayerDto)
+    const player = await playerModel.save()
+    
+    this.logger.log(`Saved Player: ${JSON.stringify(player)}`);
+    return player;
   }
 }
