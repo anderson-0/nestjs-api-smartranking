@@ -23,6 +23,10 @@ export class PlayersService {
     return this.players;
   }
 
+  async findByEmail(email: string): Promise<IPlayer[]> {
+    return this.players.filter((player) => player.email === email);
+  }
+
   private update(player: IPlayer, createPlayerDto: CreatePlayerDto): void {
     const { name } = createPlayerDto;
     player.name = name;
