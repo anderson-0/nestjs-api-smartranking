@@ -15,6 +15,7 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
+import { UpdatePlayerDto } from './dtos/update-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
 import { PlayersService } from './players.service';
@@ -37,9 +38,9 @@ export class PlayersController {
 
   @Put('/:_id')
   @HttpCode(204)
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe({ whitelist: true })) //removes unnecessary fields from the request body
   async update(
-    @Body() updatePlayerDto: CreatePlayerDto,
+    @Body() updatePlayerDto: UpdatePlayerDto,
     @Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
     await this.playersService.update(_id, updatePlayerDto);
   }
