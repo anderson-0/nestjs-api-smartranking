@@ -36,11 +36,12 @@ export class PlayersController {
   }
 
   @Put('/:_id')
+  @HttpCode(204)
   @UsePipes(ValidationPipe)
   async update(
     @Body() updatePlayerDto: CreatePlayerDto,
-    @Param('_id', PlayersParametersValidation) _id: string): Promise<IPlayer> {
-    return this.playersService.update(_id, updatePlayerDto);
+    @Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
+    await this.playersService.update(_id, updatePlayerDto);
   }
 
   @Get()

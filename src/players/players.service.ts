@@ -20,10 +20,10 @@ export class PlayersService {
     return player;
   }
 
-  async update(_id: string, createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+  async update(_id: string, createPlayerDto: CreatePlayerDto): Promise<void> {
     const { email } = createPlayerDto;
-    return this.playerModel.findOneAndUpdate(
-      { email },
+    await this.playerModel.findOneAndUpdate(
+      { _id },
       { $set: createPlayerDto },).exec();
   }
 
