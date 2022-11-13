@@ -12,16 +12,19 @@ export class PlayersService {
 
   constructor(@InjectModel('Player') private readonly playerModel: Model<IPlayer>) {}
 
-  async upsert(createPlayerDto: CreatePlayerDto): Promise<void> {
-    const { email } = createPlayerDto;
-
-    const playerFound = await this.playerModel.findOne({ email }).exec();
+  async create(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    const playerModel = new this.playerModel(createPlayerDto)
+    const player = await playerModel.save()
     
-    if (playerFound) {
-      this.update(createPlayerDto);
-    } else {
-      this.create(createPlayerDto);
-    }
+    this.logger.log(`Saved Player: ${JSON.stringify(player)}`);
+    return player;
+  }
+
+  async update(_id: string, createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    const { email } = createPlayerDto;
+    return this.playerModel.findOneAndUpdate(
+      { email },
+      { $set: createPlayerDto },).exec();
   }
 
   async find(): Promise<IPlayer[]> {
@@ -36,22 +39,10 @@ export class PlayersService {
     return this.playerModel.findById({_id}).exec();
   }
 
-  async delete(email: string): Promise<void> {
-    await this.playerModel.findOneAndDelete({ email }).exec();
+  async delete(_id: string): Promise<void> {
+    await this.playerModel.findOneAndDelete({ _id }).exec();
   }
 
-  private async update(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
-    const { email } = createPlayerDto;
-    return this.playerModel.findOneAndUpdate(
-      { email },
-      { $set: createPlayerDto },).exec();
-  }
+  
 
-  private async create(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
-    const playerModel = new this.playerModel(createPlayerDto)
-    const player = await playerModel.save()
-    
-    this.logger.log(`Saved Player: ${JSON.stringify(player)}`);
-    return player;
-  }
 }

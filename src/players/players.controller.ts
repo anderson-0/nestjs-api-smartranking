@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
@@ -11,8 +11,16 @@ export class PlayersController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  async upsert(@Body() criarJogadorDto: CreatePlayerDto): Promise<any> {
-    await this.playersService.upsert(criarJogadorDto);
+  async create(@Body() criarJogadorDto: CreatePlayerDto): Promise<IPlayer> {
+    return this.playersService.create(criarJogadorDto);
+  }
+
+  @Put('/:_id')
+  @UsePipes(ValidationPipe)
+  async update(
+    @Body() updatePlayerDto: CreatePlayerDto,
+    @Param('_id', PlayersParametersValidation) _id: string): Promise<IPlayer> {
+    return this.playersService.update(_id, updatePlayerDto);
   }
 
   @Get()
@@ -37,9 +45,9 @@ export class PlayersController {
     return player
   }
 
-  @Delete()
+  @Delete(`/:_id`)
   @HttpCode(204)
-  async delete(@Query('email', PlayersParametersValidation) email: string): Promise<void> {
-    await this.playersService.delete(email);
+  async delete(@Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
+    await this.playersService.delete(_id);
   }
 }
