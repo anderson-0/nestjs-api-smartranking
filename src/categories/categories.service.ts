@@ -20,7 +20,7 @@ export class CategoriesService {
     return category;
   }
 
-  async findByCategory(category: string): Promise<ICategory | undefined> {
+  async findByCategory(category: string): Promise<ICategory | null> {
     return this.categoryModel.findOne({ category }).exec();
   }
 }
