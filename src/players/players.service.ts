@@ -28,8 +28,12 @@ export class PlayersService {
     return this.playerModel.find().exec();
   }
 
-  async findByEmail(email: string): Promise<IPlayer[]> {
-    return this.playerModel.find({ email }).exec()
+  async findByEmail(email: string): Promise<IPlayer> {
+    return this.playerModel.findOne({ email }).exec()
+  }
+
+  async findById(_id: string): Promise<IPlayer> {
+    return this.playerModel.findById({_id}).exec();
   }
 
   async delete(email: string): Promise<void> {

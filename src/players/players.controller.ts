@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
 import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
@@ -16,17 +16,25 @@ export class PlayersController {
   }
 
   @Get()
-  async find(@Query('email') email: string): Promise<IPlayer[]> {
-    let players: IPlayer[] = []
-    if (email) {
-      players = await this.playersService.findByEmail(email);
-    }
-    players = await this.playersService.find();
-
-    if (players.length === 0) {
-      throw new HttpException('No players found', HttpStatus.NOT_FOUND);
-    }
+  async find(): Promise<IPlayer[]> {
+    const players: IPlayer[] = await this.playersService.find();
     return players
+  }
+
+  @Get()
+  async findByEmail(@Query('email') email: string): Promise<IPlayer> {
+    const player: IPlayer = await this.playersService.findByEmail(email);
+   
+    if (!player) {
+      throw new HttpException('Player not found', HttpStatus.NOT_FOUND);
+    }
+    return player
+  }
+
+  @Get('/:_id')
+  async findById(@Param('_id') id: string): Promise<IPlayer> {
+    const player: IPlayer = await this.playersService.findById(id);
+    return player
   }
 
   @Delete()
