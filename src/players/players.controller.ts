@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
+import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
 import { PlayersService } from './players.service';
 
 @Controller('api/v1/players')
@@ -30,7 +31,7 @@ export class PlayersController {
 
   @Delete()
   @HttpCode(204)
-  async delete(@Query('email') email: string): Promise<void> {
+  async delete(@Query('email', PlayersParametersValidation) email: string): Promise<void> {
     await this.playersService.delete(email);
   }
 }
