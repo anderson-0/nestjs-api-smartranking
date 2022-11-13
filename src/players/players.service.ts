@@ -9,11 +9,24 @@ export class PlayersService {
   private players: IPlayer[] = [];
 
   async upsert(createPlayerDto: CreatePlayerDto): Promise<void> {
-    await this.create(createPlayerDto);
+    const { name } = createPlayerDto;
+
+    const playerFound = this.players.find((player) => player.name === name);
+    if (playerFound) {
+      this.update(playerFound, createPlayerDto);
+    } else {
+      this.create(createPlayerDto);
+    }
   }
 
   async find(): Promise<IPlayer[]> {
     return this.players;
+  }
+
+  private update(player: IPlayer, createPlayerDto: CreatePlayerDto): void {
+    const { name } = createPlayerDto;
+    player.name = name;
+    this.players = [...this.players.filter((player) => player.name !== name), player];
   }
 
   private create(createPlayerDto: CreatePlayerDto): void {
