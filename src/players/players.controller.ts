@@ -46,12 +46,10 @@ export class PlayersController {
   }
 
   @Get()
-  async find(): Promise<IPlayer[]> {
-    return this.playersService.find();
-  }
-
-  @Get()
-  async findByEmail(@Query('email') email: string): Promise<IPlayer> {
+  async find(@Query('email') email: string): Promise<IPlayer | IPlayer[]> {
+    if (!email) {
+      return this.playersService.find();
+    }
     const player: IPlayer = await this.playersService.findByEmail(email);
     if (!player) {
       throw new HttpException('Player not found', HttpStatus.NOT_FOUND);
