@@ -27,6 +27,10 @@ export class PlayersService {
     return this.players.filter((player) => player.email === email);
   }
 
+  async delete(email: string): Promise<void> {
+    this.players = this.players.filter((player) => player.email !== email);
+  }
+
   private update(player: IPlayer, createPlayerDto: CreatePlayerDto): void {
     const { name } = createPlayerDto;
     player.name = name;
