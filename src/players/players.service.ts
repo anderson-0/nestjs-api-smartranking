@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
-import { validate as uuidValidate } from 'uuid';
+import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
@@ -9,7 +9,6 @@ import { UpdatePlayerDto } from './dtos/update-player.dto';
 @Injectable()
 export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
-  private players: IPlayer[] = [];
 
   constructor(@InjectModel('Player') private readonly playerModel: Model<IPlayer>) {}
 
@@ -36,7 +35,7 @@ export class PlayersService {
   }
 
   async findById(_id: string): Promise<IPlayer> {
-    if(!uuidValidate(_id)) throw new Error('Invalid ID');
+    if(!ObjectId.isValid(_id)) throw new Error('Invalid ID');
     return this.playerModel.findById({_id}).exec();
   }
 
