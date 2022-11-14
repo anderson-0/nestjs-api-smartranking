@@ -53,7 +53,7 @@ export class CategoriesService {
       throw new Error(`Player ${playerId} not found`);
     }
 
-    const playerAlreadyInCategory = foundCategory.players.find(player => player._id == playerId);
+    const playerAlreadyInCategory = foundCategory.players.find(player => player._id === playerId);
     if (playerAlreadyInCategory) {
       throw new Error(`Player ${playerId} already in category ${category}`);
     }
@@ -79,21 +79,10 @@ export class CategoriesService {
   }
 
   async findPlayersCategory(idPlayer: any): Promise<ICategory> {
+    const playerId = await this.playersService.findById(idPlayer)                                   
 
-    /*
-    Desafio
-    Escopo da exceção realocado para o próprio Categorias Service
-    Verificar se o jogador informado já se encontra cadastrado
-    */
-
-    //await this.jogadoresService.consultarJogadorPeloId(idJogador)                                   
-
-    const players = await this.playersService.find()
-
-    const playerFilter = players.filter( player => player._id == idPlayer )
-
-    if (playerFilter.length == 0) {
-        throw new BadRequestException(`ID ${idPlayer} is not a player!`)
+    if (!playerId) {
+      throw new BadRequestException(`ID ${idPlayer} is not a player!`)
     }
 
     return await this.categoryModel.findOne().where('jogadores').in(idPlayer).exec() 
