@@ -58,8 +58,12 @@ export class PlayersController {
   }
 
   @Get('/:_id')
-  async findById(@Param('_id') id: string): Promise<IPlayer> {
-    return this.playersService.findById(id);
+  async findById(@Param('_id') _id: string): Promise<IPlayer> {
+    try {
+      return await this.playersService.findById(_id);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Delete(`/:_id`)

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { IPlayer } from './interfaces/player.interface';
-import { v4 as uuidv4 } from 'uuid';
+import { validate as uuidValidate } from 'uuid';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
@@ -36,6 +36,7 @@ export class PlayersService {
   }
 
   async findById(_id: string): Promise<IPlayer> {
+    if(!uuidValidate(_id)) throw new Error('Invalid ID');
     return this.playerModel.findById({_id}).exec();
   }
 

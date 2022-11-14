@@ -27,7 +27,11 @@ export class CategoriesController {
 
   @Get(':_id')
   async findById(@Param('_id') _id: string): Promise<ICategory> {
-    return this.categoriesService.findById(_id);
+    try {
+      return await this.categoriesService.findById(_id);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
 }

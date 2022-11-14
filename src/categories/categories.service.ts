@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { validate as uuidValidate } from 'uuid';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { ICategory } from './interfaces/category.interface';
 
@@ -25,6 +26,7 @@ export class CategoriesService {
   }
 
   async findById(_id: string): Promise<ICategory> {
+    if(!uuidValidate(_id)) throw new Error('Invalid ID');
     return this.categoryModel.findById({_id}).exec();
   }
 
