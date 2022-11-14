@@ -17,7 +17,7 @@ import {
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
 import { IPlayer } from './interfaces/player.interface';
-import { PlayersParametersValidation } from './pipes/players-parameters-validation.pipe';
+import { PlayersParametersValidation } from '../common/pipes/players-parameters-validation.pipe';
 import { PlayersService } from './players.service';
 
 @Controller('api/v1/players')

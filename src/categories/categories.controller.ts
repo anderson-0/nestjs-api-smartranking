@@ -1,10 +1,9 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
-import { PlayersParametersValidation } from 'src/players/pipes/players-parameters-validation.pipe';
+import { ParametersValidationPipe } from 'src/common/pipes/parameters-validation.pipe';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { ICategory } from './interfaces/category.interface';
-import { CategoriesParametersValidation } from './pipes/categories-parameters-validation.pipe';
 
 @Controller('api/v1/categories')
 export class CategoriesController {
@@ -42,7 +41,7 @@ export class CategoriesController {
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) //removes unnecessary fields from the request body
   async update(
     @Body() updateCategoryDto: UpdateCategoryDto,
-    @Param('category', CategoriesParametersValidation) category: string): Promise<ICategory> {
+    @Param('category', ParametersValidationPipe) category: string): Promise<ICategory> {
     try {
       return await this.categoriesService.update(category, updateCategoryDto);
     } catch (error) {
@@ -53,8 +52,8 @@ export class CategoriesController {
   @Post('/:category/players/:playerId')
   @HttpCode(200)
   async addPlayerToCategory(
-    @Param('category', CategoriesParametersValidation) category: string,
-    @Param('playerId', PlayersParametersValidation) playerId: string,
+    @Param('category', ParametersValidationPipe) category: string,
+    @Param('playerId', ParametersValidationPipe) playerId: string,
   ): Promise<ICategory> {
     
     try {
