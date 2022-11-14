@@ -14,7 +14,7 @@ export class ChallengesController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  async criarDesafio(
+  async create(
       @Body() createChallengeDto: CreateChallengeDto): Promise<IChallenge> {
           this.logger.log(`criarDesafioDto: ${JSON.stringify(createChallengeDto)}`)
           return await this.challengesService.create(createChallengeDto)
@@ -32,7 +32,6 @@ export class ChallengesController {
       @Body(ChallengeStatusValidationPipe) updateChallengeDto: UpdateChallengeDto,
       @Param('challenge') _id: string): Promise<void> {
           await this.challengesService.update(_id, updateChallengeDto)
-
       }    
 
   @Post('/:challenge/match/')
