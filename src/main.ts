@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import momentTimezone from 'moment-timezone';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
