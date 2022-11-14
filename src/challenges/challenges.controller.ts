@@ -6,7 +6,7 @@ import { UpdateChallengeDto } from './dtos/update-challenge.dto';
 import { IChallenge } from './interfaces/challenge.interface';
 import { ChallengeStatusValidationPipe } from './pipes/challenge-status-validation.pipe';
 
-@Controller('challenges')
+@Controller('api/v1/challenges')
 export class ChallengesController {
   private readonly logger = new Logger(ChallengesController.name)
   
