@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
@@ -77,4 +77,26 @@ export class CategoriesService {
   async findByCategory(category: string): Promise<ICategory | null> {
     return this.categoryModel.findOne({ category }).exec();
   }
+
+  async findPlayersCategory(idPlayer: any): Promise<ICategory> {
+
+    /*
+    Desafio
+    Escopo da exceção realocado para o próprio Categorias Service
+    Verificar se o jogador informado já se encontra cadastrado
+    */
+
+    //await this.jogadoresService.consultarJogadorPeloId(idJogador)                                   
+
+    const players = await this.playersService.find()
+
+    const playerFilter = players.filter( player => player._id == idPlayer )
+
+    if (playerFilter.length == 0) {
+        throw new BadRequestException(`O id ${idPlayer} não é um jogador!`)
+    }
+
+    return await this.categoryModel.findOne().where('jogadores').in(idPlayer).exec() 
+  }
+
 }
