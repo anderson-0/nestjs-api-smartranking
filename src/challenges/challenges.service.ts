@@ -27,7 +27,7 @@ export class ChallengesService {
       const playersFilter = players.filter( player => player._id === playerDto._id )
 
       if (playersFilter.length == 0) {
-        throw new BadRequestException(`O id ${playerDto._id} não é um jogador!`)
+        throw new BadRequestException(`ID ${playerDto._id} is not a player!`)
       }
     })
 

@@ -93,7 +93,7 @@ export class CategoriesService {
     const playerFilter = players.filter( player => player._id == idPlayer )
 
     if (playerFilter.length == 0) {
-        throw new BadRequestException(`O id ${idPlayer} não é um jogador!`)
+        throw new BadRequestException(`ID ${idPlayer} is not a player!`)
     }
 
     return await this.categoryModel.findOne().where('jogadores').in(idPlayer).exec() 
