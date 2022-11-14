@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 export const ChallengeSchema = new mongoose.Schema({
-  dateTimeChallenge: { type: Date, required: true },
+  dateHourChallenge: { type: Date, required: true },
   status: { type: String },
   dateTimeRequest: { type: Date },
   dateTimeAnswer: { type: Date },

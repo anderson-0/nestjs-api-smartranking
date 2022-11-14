@@ -24,19 +24,19 @@ export class ChallengesService {
     const players = await this.playersService.find()
 
     createChallengeDto.players.map(playerDto => {
-      const playersFilter = players.filter( player => player._id === playerDto._id )
+      const playersFilter = players.filter( player => player._id.toString() === playerDto._id.toString() )
 
-      if (playersFilter.length == 0) {
+      if (playersFilter.length === 0) {
         throw new BadRequestException(`ID ${playerDto._id} is not a player!`)
       }
     })
 
     // Check if requester is part of the challenge
-    const requesterIsPlayerInMatch = await createChallengeDto.players.filter(player => player._id == createChallengeDto.requester)
+    const requesterIsPlayerInMatch = createChallengeDto.players.filter(player => player._id.toString() == createChallengeDto.requester)
 
     this.logger.log(`requesterIsPlayerInMatch: ${requesterIsPlayerInMatch}`)
 
-    if(requesterIsPlayerInMatch.length == 0) {
+    if(requesterIsPlayerInMatch.length === 0) {
       throw new BadRequestException(`The requester must be a player in the match!`)
     }
 
@@ -50,7 +50,7 @@ export class ChallengesService {
 
     const createdChallenge = new this.challengeModel(createChallengeDto)
     createdChallenge.category = playerCategory.category
-    createdChallenge.dateHourRequest = new Date()
+    createdChallenge.dateHourChallenge = new Date()
 
     // When a challenge is created, it must have a PENDING status
     createdChallenge.status = ChallengeStatus.PENDING
@@ -68,7 +68,7 @@ export class ChallengesService {
 
   async findPlayersChallenges(_id: any): Promise<IChallenge[]> {
     const players = await this.playersService.find()
-    const playerFilter = players.filter(player => player._id == _id )
+    const playerFilter = players.filter(player => player._id.toString() === _id.toString())
 
     if (playerFilter.length == 0) {
       throw new BadRequestException(`ID ${_id} is not a player!`)
@@ -109,7 +109,7 @@ export class ChallengesService {
     }
 
     // Check if player is part of the challenge
-    const playerFilter = foundChallenge.players.filter(player => player._id === assignChallengeToMatchDto.def._id )
+    const playerFilter = foundChallenge.players.filter(player => player._id.toString() === assignChallengeToMatchDto.def._id.toString())
 
     this.logger.log(`foundChallenge: ${foundChallenge}`)
     this.logger.log(`playerFilter: ${playerFilter}`)
