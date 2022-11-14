@@ -13,5 +13,5 @@ export class CreateChallengeDto {
   category: string;
 
   @IsNotEmpty()
-  players: Array<IPlayer>;
+  players: IPlayer[];
 }

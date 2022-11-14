@@ -8,15 +8,15 @@ export interface IChallenge extends Document {
   dateHourResponse: Date;
   requester: IPlayer;
   category: string;
-  players: Array<IPlayer>;
+  players: IPlayer[];
   match: IMatch;
 }
 
 export interface IMatch {
-  players: Array<IPlayer>;
+  players: IPlayer[];
   category: string;
   def: IPlayer;
-  result: Array<IResult>;
+  result: IResult[];
 }
 
 export interface IResult {

@@ -22,7 +22,7 @@ export class ChallengesController {
   
   @Get()
   async find(
-      @Query('idPlayer') _id: string): Promise<Array<IChallenge>> {
+      @Query('idPlayer') _id: string): Promise<IChallenge[]> {
       return _id ? await this.challengesService.findPlayersChallenges(_id) 
       : await this.challengesService.find()
   }

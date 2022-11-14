@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { ArrayMinSize, IsArray, IsOptional, IsString } from 'class-validator'
 import { IEvent } from '../interfaces/category.interface';
 
 export class UpdateCategoryDto {
@@ -9,5 +9,5 @@ export class UpdateCategoryDto {
   
   @IsArray()
   @ArrayMinSize(1)
-  readonly events: Array<IEvent>;
+  readonly events: IEvent[];
 }
