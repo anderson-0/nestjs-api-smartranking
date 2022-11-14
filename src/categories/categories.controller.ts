@@ -1,6 +1,5 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PlayersParametersValidation } from 'src/players/pipes/players-parameters-validation.pipe';
-import { PlayersService } from 'src/players/players.service';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
