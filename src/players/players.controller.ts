@@ -14,10 +14,10 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
+import { ParametersValidationPipe } from 'src/common/pipes/parameters-validation.pipe';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { UpdatePlayerDto } from './dtos/update-player.dto';
 import { IPlayer } from './interfaces/player.interface';
-import { PlayersParametersValidation } from '../common/pipes/players-parameters-validation.pipe';
 import { PlayersService } from './players.service';
 
 @Controller('api/v1/players')
@@ -41,7 +41,7 @@ export class PlayersController {
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) //removes unnecessary fields from the request body
   async update(
     @Body() updatePlayerDto: UpdatePlayerDto,
-    @Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
+    @Param('_id', ParametersValidationPipe) _id: string): Promise<void> {
     await this.playersService.update(_id, updatePlayerDto);
   }
 
@@ -68,7 +68,7 @@ export class PlayersController {
 
   @Delete(`/:_id`)
   @HttpCode(204)
-  async delete(@Param('_id', PlayersParametersValidation) _id: string): Promise<void> {
+  async delete(@Param('_id', ParametersValidationPipe) _id: string): Promise<void> {
     await this.playersService.delete(_id);
   }
 }
