@@ -20,6 +20,14 @@ export class CategoriesService {
     return category;
   }
 
+  async find(): Promise<ICategory[]> {
+    return this.categoryModel.find().exec();
+  }
+
+  async findById(_id: string): Promise<ICategory> {
+    return this.categoryModel.findById({_id}).exec();
+  }
+
   async findByCategory(category: string): Promise<ICategory | null> {
     return this.categoryModel.findOne({ category }).exec();
   }

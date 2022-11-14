@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { ICategory } from './interfaces/category.interface';
@@ -19,4 +19,15 @@ export class CategoriesController {
     }
     return this.categoriesService.create(createCategoryDto);
   }
+
+  @Get()
+  async find(): Promise<ICategory[]> {
+    return this.categoriesService.find();
+  }
+
+  @Get(':_id')
+  async findById(@Param('_id') _id: string): Promise<ICategory> {
+    return this.categoriesService.findById(_id);
+  }
+
 }
