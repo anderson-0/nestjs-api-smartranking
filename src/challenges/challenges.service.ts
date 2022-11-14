@@ -11,192 +11,149 @@ import { IChallenge, IMatch } from './interfaces/challenge.interface';
 
 @Injectable()
 export class ChallengesService {
-  
   constructor(
-        @InjectModel('Challenge') private readonly challengeModel: Model<IChallenge>,
-        @InjectModel('Match') private readonly matchModel: Model<IMatch>,
-        private readonly playersService: PlayersService,
-        private readonly categoriesService: CategoriesService) {}
+    @InjectModel('Challenge') private readonly challengeModel: Model<IChallenge>,
+    @InjectModel('Match') private readonly matchModel: Model<IMatch>,
+    private readonly playersService: PlayersService,
+    private readonly categoriesService: CategoriesService) {}
 
-        private readonly logger = new Logger(ChallengesService.name)
+    private readonly logger = new Logger(ChallengesService.name)
 
-    async create(createChallengeDto: CreateChallengeDto): Promise<IChallenge> {
+  async create(createChallengeDto: CreateChallengeDto): Promise<IChallenge> {
+    // Check if players exist
+    const players = await this.playersService.find()
 
-        /*
-        Verificar se os jogadores informados estão cadastrados
-        */
+    createChallengeDto.players.map(playerDto => {
+      const playersFilter = players.filter( player => player._id === playerDto._id )
 
-        const players = await this.playersService.find()
+      if (playersFilter.length == 0) {
+        throw new BadRequestException(`O id ${playerDto._id} não é um jogador!`)
+      }
+    })
 
-        createChallengeDto.players.map(playerDto => {
-            const playersFilter = players.filter( player => player._id === playerDto._id )
+    // Check if requester is part of the challenge
+    const requesterIsPlayerInMatch = await createChallengeDto.players.filter(player => player._id == createChallengeDto.requester)
 
-            if (playersFilter.length == 0) {
-                throw new BadRequestException(`O id ${playerDto._id} não é um jogador!`)
-            }
-        
-        })
-          
-        /*
-        Verificar se o solicitante é um dos jogadores da partida
-        */    
+    this.logger.log(`requesterIsPlayerInMatch: ${requesterIsPlayerInMatch}`)
 
-        const requesterIsPlayerInMatch = await createChallengeDto.players.filter(player => player._id == createChallengeDto.requester)
-
-        this.logger.log(`requesterIsPlayerInMatch: ${requesterIsPlayerInMatch}`)
-
-        if(requesterIsPlayerInMatch.length == 0) {
-            throw new BadRequestException(`The requester must be a player in the match!`)
-        }
-
-        /*
-        Descobrimos a category com base no ID do jogador solicitante
-        */
-        const playerCategory = await this.categoriesService.findPlayersCategory(createChallengeDto.requester)
-
-        /*
-        Para prosseguir o solicitante deve fazer parte de uma category
-        */
-        if (!playerCategory) {
-            throw new BadRequestException(`O solicitante precisa estar registrado em uma category!`)
-        }
-
-        const desafioCriado = new this.challengeModel(createChallengeDto)
-        desafioCriado.category = playerCategory.category
-        desafioCriado.dateHourRequest = new Date()
-        /*
-        Quando um desafio for criado, definimos o status desafio como pendente
-        */
-        desafioCriado.status = ChallengeStatus.PENDING
-        this.logger.log(`desafioCriado: ${JSON.stringify(desafioCriado)}`)
-        return await desafioCriado.save()
-
+    if(requesterIsPlayerInMatch.length == 0) {
+      throw new BadRequestException(`The requester must be a player in the match!`)
     }
 
-    async find(): Promise<Array<IChallenge>> {
-        return await this.challengeModel.find()
-        .populate("requester")
-        .populate("players")
-        .populate("match")
-        .exec()
+    // Find category based on the requester's ID    
+    const playerCategory = await this.categoriesService.findPlayersCategory(createChallengeDto.requester)
+
+    // The requester must be in a category
+    if (!playerCategory) {
+      throw new BadRequestException(`The requester must be in a category!`)
     }
 
-    async findPlayersChallenges(_id: any): Promise<Array<IChallenge>> {
+    const createdChallenge = new this.challengeModel(createChallengeDto)
+    createdChallenge.category = playerCategory.category
+    createdChallenge.dateHourRequest = new Date()
 
-       const jogadores = await this.playersService.find()
+    // When a challenge is created, it must have a PENDING status
+    createdChallenge.status = ChallengeStatus.PENDING
+    this.logger.log(`createdChallenge: ${JSON.stringify(createdChallenge)}`)
+    return await createdChallenge.save()
+  }
 
-        const jogadorFilter = jogadores.filter( jogador => jogador._id == _id )
+  async find(): Promise<IChallenge[]> {
+    return await this.challengeModel.find()
+    .populate("requester")
+    .populate("players")
+    .populate("match")
+    .exec()
+  }
 
-        if (jogadorFilter.length == 0) {
-            throw new BadRequestException(`O id ${_id} não é um jogador!`)
-        }
+  async findPlayersChallenges(_id: any): Promise<IChallenge[]> {
+    const players = await this.playersService.find()
+    const playerFilter = players.filter(player => player._id == _id )
 
-        return await this.challengeModel.find()
-        .where('jogadores')
-        .in(_id)
-        .populate("solicitante")
-        .populate("jogadores")
-        .populate("partida")
-        .exec()
-
+    if (playerFilter.length == 0) {
+      throw new BadRequestException(`ID ${_id} is not a player!`)
     }
 
-    async update(_id: string, updateChallengeDto: UpdateChallengeDto): Promise<void> {
-   
-        const desafioEncontrado = await this.challengeModel.findById(_id).exec()
+    return await this.challengeModel.find()
+    .where('jogadores')
+    .in(_id)
+    .populate("solicitante")
+    .populate("jogadores")
+    .populate("partida")
+    .exec()
+  }
 
-        if (!desafioEncontrado) {
-            throw new NotFoundException(`Desafio ${_id} não cadastrado!`)
-        }
+  async update(_id: string, updateChallengeDto: UpdateChallengeDto): Promise<void> {
+    const foundChallenge = await this.challengeModel.findById(_id).exec()
 
-        /*
-        Atualizaremos a data da resposta quando o status do desafio vier preenchido 
-        */
-        if (updateChallengeDto.status){
-           desafioEncontrado.dateHourResponse = new Date()         
-        }
-        desafioEncontrado.status = updateChallengeDto.status
-        desafioEncontrado.dateHourChallenge = updateChallengeDto.dateHourChallenge
-
-        await this.challengeModel.findOneAndUpdate({_id},{$set: desafioEncontrado}).exec()
-        
+    if (!foundChallenge) {
+      throw new NotFoundException(`Desafio ${_id} não cadastrado!`)
     }
 
-    async assignChallengeToMatch(_id: string, assignChallengeToMatchDto: AssignChallengeToMatchDto ): Promise<void> {
-
-        const foundChallenge = await this.challengeModel.findById(_id).exec()
-        
-        if (!foundChallenge) {
-            throw new BadRequestException(`Desafio ${_id} não cadastrado!`)
-        }
-
-         /*
-        Verificar se o jogador vencedor faz parte do desafio
-        */
-       const playerFilter = foundChallenge.players.filter(player => player._id === assignChallengeToMatchDto.def._id )
-
-        this.logger.log(`foundChallenge: ${foundChallenge}`)
-        this.logger.log(`playerFilter: ${playerFilter}`)
-
-       if (playerFilter.length == 0) {
-           throw new BadRequestException(`The winner is not part of the challenge!`)
-       }
-
-        /*
-        Primeiro vamos criar e persistir o objeto partida
-        */
-       const createdMatch = new this.matchModel(assignChallengeToMatchDto)
-
-       /*
-       Atribuir ao objeto partida a category recuperada no desafio
-       */
-       createdMatch.category = foundChallenge.category
-
-       /*
-       Atribuir ao objeto partida os jogadores que fizeram parte do desafio
-       */
-       createdMatch.players = foundChallenge.players
-
-       const result = await createdMatch.save()
-       
-        /*
-        Whenever a match is registered by a user, we change the status to EXECUTED
-        */
-        foundChallenge.status = ChallengeStatus.EXECUTED
-
-        /*  
-        Recover ID of the match and assign to the challenge
-        */
-        foundChallenge.match = result
-
-        try {
-        await this.challengeModel.findOneAndUpdate({_id},{$set: foundChallenge}).exec() 
-        } catch (error) {
-            /*
-            Se a atualização do desafio falhar excluímos a partida 
-            gravada anteriormente
-            */
-           await this.matchModel.deleteOne({_id: result._id}).exec();
-           throw new InternalServerErrorException()
-        }
+    // We update the response date and time when the challenge has a status
+    if (updateChallengeDto.status){
+       foundChallenge.dateHourResponse = new Date()     
     }
 
-    async delete(_id: string): Promise<void> {
+    foundChallenge.status = updateChallengeDto.status
+    foundChallenge.dateHourChallenge = updateChallengeDto.dateHourChallenge
 
-        const foundChallenge = await this.challengeModel.findById(_id).exec()
+    await this.challengeModel.findOneAndUpdate({_id},{$set: foundChallenge}).exec()
+  }
 
-        if (!foundChallenge) {
-            throw new BadRequestException(`Challenge ${_id} not found!`)
-        }
-        
-        /*
-        Realizaremos a deleção lógica do desafio, modificando seu status para
-        CANCELED
-        */
-       foundChallenge.status = ChallengeStatus.CANCELED
+  async assignChallengeToMatch(_id: string, assignChallengeToMatchDto: AssignChallengeToMatchDto ): Promise<void> {
+    const foundChallenge = await this.challengeModel.findById(_id).exec()
 
-       await this.challengeModel.findOneAndUpdate({_id},{$set: foundChallenge}).exec() 
-
+    if (!foundChallenge) {
+      throw new BadRequestException(`Challenge ${_id} not found!`)
     }
+
+    // Check if player is part of the challenge
+    const playerFilter = foundChallenge.players.filter(player => player._id === assignChallengeToMatchDto.def._id )
+
+    this.logger.log(`foundChallenge: ${foundChallenge}`)
+    this.logger.log(`playerFilter: ${playerFilter}`)
+
+    if (playerFilter.length == 0) {
+        throw new BadRequestException(`The winner is not part of the challenge!`)
+    }
+
+    const createdMatch = new this.matchModel(assignChallengeToMatchDto)
+     // Assign to match object the category obtained from the challenge
+     createdMatch.category = foundChallenge.category
+
+     // Assigns players to match object
+     createdMatch.players = foundChallenge.players
+
+     const result = await createdMatch.save()
+     
+    // Whenever a match is registered by a user, we change the status to EXECUTED
+    foundChallenge.status = ChallengeStatus.EXECUTED
+ 
+    // Recover ID of the match and assign to the challenge
+    foundChallenge.match = result
+
+    try {
+    await this.challengeModel.findOneAndUpdate({_id},{$set: foundChallenge}).exec() 
+    } catch (error) {
+      // If the update fails we exclude the previously saved match
+      await this.matchModel.deleteOne({_id: result._id}).exec();
+      throw new InternalServerErrorException()
+    }
+  }
+
+  async delete(_id: string): Promise<void> {
+
+    const foundChallenge = await this.challengeModel.findById(_id).exec()
+
+    if (!foundChallenge) {
+      throw new BadRequestException(`Challenge ${_id} not found!`)
+    }
+    
+    // Challenge Logical deletion by modifying the status to CANCELED
+    foundChallenge.status = ChallengeStatus.CANCELED
+
+    await this.challengeModel.findOneAndUpdate({_id},{$set: foundChallenge}).exec() 
+  }
 
 }
