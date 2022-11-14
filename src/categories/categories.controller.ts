@@ -29,7 +29,7 @@ export class CategoriesController {
     return this.categoriesService.find();
   }
 
-  @Get(':_id')
+  @Get('/:_id')
   async findById(@Param('_id') _id: string): Promise<ICategory> {
     try {
       return await this.categoriesService.findById(_id);
@@ -38,7 +38,7 @@ export class CategoriesController {
     }
   }
 
-  @Put(':category')
+  @Put('/:category')
   @HttpCode(200)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) //removes unnecessary fields from the request body
   async update(
@@ -51,7 +51,7 @@ export class CategoriesController {
     }
   }
 
-  @Post(':category/players/:playerId')
+  @Post('/:category/players/:playerId')
   @HttpCode(200)
   async addPlayerToCategory(
     @Param('category', CategoriesParametersValidation) category: string,
