@@ -75,11 +75,11 @@ export class ChallengesService {
     }
 
     return await this.challengeModel.find()
-    .where('jogadores')
+    .where('players')
     .in(_id)
-    .populate("solicitante")
-    .populate("jogadores")
-    .populate("partida")
+    .populate("requester")
+    .populate("players")
+    .populate("match")
     .exec()
   }
 
@@ -87,7 +87,7 @@ export class ChallengesService {
     const foundChallenge = await this.challengeModel.findById(_id).exec()
 
     if (!foundChallenge) {
-      throw new NotFoundException(`Desafio ${_id} não cadastrado!`)
+      throw new NotFoundException(`Challenge ${_id} not found!`)
     }
 
     // We update the response date and time when the challenge has a status
@@ -109,7 +109,7 @@ export class ChallengesService {
     }
 
     // Check if player is part of the challenge
-    const playerFilter = foundChallenge.players.filter(player => player._id.toString() === assignChallengeToMatchDto.def._id.toString())
+    const playerFilter = foundChallenge.players.filter(player => player._id.toString() === assignChallengeToMatchDto.def.toString())
 
     this.logger.log(`foundChallenge: ${foundChallenge}`)
     this.logger.log(`playerFilter: ${playerFilter}`)

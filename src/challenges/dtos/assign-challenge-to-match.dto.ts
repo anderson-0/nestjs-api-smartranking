@@ -8,6 +8,5 @@ export class AssignChallengeToMatchDto {
   def: IPlayer
 
   @IsNotEmpty()
-  resultado: IResult[]
-  
+  result: IResult[]
 }

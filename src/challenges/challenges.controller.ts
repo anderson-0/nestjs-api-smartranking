@@ -27,17 +27,17 @@ export class ChallengesController {
       : await this.challengesService.find()
   }
 
-  @Put('/:desafio')
+  @Put('/:challenge')
   async update(
       @Body(ChallengeStatusValidationPipe) updateChallengeDto: UpdateChallengeDto,
       @Param('challenge') _id: string): Promise<void> {
           await this.challengesService.update(_id, updateChallengeDto)
       }    
 
-  @Post('/:challenge/match/')
+  @Post('/:challenge/match')
   async assignChallengeToMatch(
       @Body(ValidationPipe) assignChallengeToMatchDto: AssignChallengeToMatchDto,
-      @Param('desafio') _id: string): Promise<void> {
+      @Param('challenge') _id: string): Promise<void> {
       return await this.challengesService.assignChallengeToMatch(_id, assignChallengeToMatchDto)           
   }
 

@@ -27,13 +27,13 @@ export class PlayersController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  async create(@Body() criarJogadorDto: CreatePlayerDto): Promise<IPlayer> {
-    const { email } = criarJogadorDto;
+  async create(@Body() createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    const { email } = createPlayerDto;
     const player: IPlayer = await this.playersService.findByEmail(email);
     if (player) {
       throw new BadRequestException('Player already exists');
     }
-    return this.playersService.create(criarJogadorDto);
+    return this.playersService.create(createPlayerDto);
   }
 
   @Put('/:_id')

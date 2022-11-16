@@ -85,7 +85,7 @@ export class CategoriesService {
       throw new BadRequestException(`ID ${idPlayer} is not a player!`)
     }
 
-    return await this.categoryModel.findOne().where('jogadores').in(idPlayer).exec() 
+    return await this.categoryModel.findOne().where('players').in(idPlayer).exec() 
   }
 
 }
